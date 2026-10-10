@@ -1,13 +1,26 @@
 import os
 import pandas as pd
 
-# Path set karte waqt 'Garba.csv' (Capital G) likhein
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CSV_PATH = os.path.join(BASE_DIR, 'Garba.csv')
+# Multi-location fallback logic for Vercel serverless environment
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Agar error message me bhi dikhana ho, toh yehi path use karein:
-if not os.path.exists(CSV_PATH):
-    # Error message ko bhi update kar sakte hain
-    pass
+# Possible locations where Vercel might place the file
+possible_paths = [
+    os.path.join(base_dir, 'Garba.csv'),
+    os.path.join(base_dir, 'garba.csv'),
+    os.path.join(os.getcwd(), 'Garba.csv'),
+    os.path.join(os.getcwd(), 'garba.csv'),
+    'Garba.csv',
+    'garba.csv'
+]
 
-df = pd.read_csv(CSV_PATH)
+csv_path = None
+for path in possible_paths:
+    if os.path.exists(path):
+        csv_path = path
+        break
+
+if csv_path is None:
+    raise FileNotFoundError("Error: 'Garba.csv' file kisi bhi expected path par nahi mili!")
+
+df = pd.read_csv(csv_path)
