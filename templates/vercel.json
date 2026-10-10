@@ -11,5 +11,11 @@
       "src": "/(.*)",
       "destination": "app.py"
     }
+  ],
+  "files": [
+    "app.py",
+    "Garba.csv",
+    "requirements.txt",
+    "templates/**"
   ]
 }
