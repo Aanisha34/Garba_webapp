@@ -1,9 +1,8 @@
 import os
 import pandas as pd
 
-# Absolute path set karne ke liye taaki Vercel par bhi file mil jaye
-basedir = os.path.abspath(os.path.dirname(__file__))
-csv_path = os.path.join(basedir, 'garba.csv')
+# Yeh code automatic exact path dhoond leta hai chahe aap local PC par ho ya Vercel par
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+csv_path = os.path.join(BASE_DIR, 'garba.csv')
 
-# Ab pandas se file aise read karein:
 df = pd.read_csv(csv_path)
