@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garba Event Dashboard & Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons for Dancers / Dandiya Vibe -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #fff8f0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar { background: linear-gradient(135deg, #b30000, #ff6600); }
+        .card-stat { border-left: 5px solid #ff6600; background: #ffffff; }
+        
+        /* Garba Hero Banner Styling */
+        .garba-hero {
+            background: linear-gradient(rgba(139, 0, 0, 0.88), rgba(204, 85, 0, 0.88)), 
+                        url('https://images.unsplash.com/photo-1596701062351-8c2c19c1a3b4?auto=format&fit=crop&w=1350&q=80') no-repeat center center;
+            background-size: cover;
+            color: white;
+            padding: 50px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .dancer-icon {
+            font-size: 3.2rem;
+            color: #ffeb3b;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark shadow-sm py-3 mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1 fs-4">🪔 Garba Event 2026 Management Dashboard</span>
+            <button class="btn btn-light text-danger fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addPassModal">
+                <i class="fa-solid fa-plus"></i> Add New Pass
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Garba Hero Banner with Dancers / Dandiya Vibe on Sides -->
+        <div class="garba-hero mb-4">
+            <div class="row align-items-center text-center">
+                <!-- Left Side Traditional Dancer Vibe -->
+                <div class="col-md-3 d-none d-md-block">
+                    <div class="dancer-icon mb-2">
+                        <i class="fa-solid fa-people-group"></i>
+                    </div>
+                    <h5 class="fw-bold text-warning">💃 Traditional Raas</h5>
+                    <small class="text-light">Colorful Chaniya Choli & Kediyu</small>
+                </div>
+
+                <!-- Center Title & CTA -->
+                <div class="col-md-6">
+                    <h1 class="display-5 fw-bold text-warning">🪔 Raas Garba 2026 🪔</h1>
+                    <p class="lead fs-6 mb-3">Celebrate the vibrant festival of dance, culture, and devotion!</p>
+                    <button class="btn btn-warning btn-lg fw-bold text-dark px-4 shadow" data-bs-toggle="modal" data-bs-target="#addPassModal">
+                        <i class="fa-solid fa-ticket"></i> Book Your Pass Now
+                    </button>
+                </div>
+
+                <!-- Right Side Music & Dandiya Vibe -->
+                <div class="col-md-3 d-none d-md-block">
+                    <div class="dancer-icon mb-2">
+                        <i class="fa-solid fa-music"></i>
+                    </div>
+                    <h5 class="fw-bold text-warning">🕺 Energetic Beats</h5>
+                    <small class="text-light">Dandiya & Dhol Night</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card card-stat shadow-sm p-3">
+                    <h5 class="text-muted">Total Passes</h5>
+                    <h3 class="fw-bold text-danger">{{ total_passes }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-stat shadow-sm p-3">
+                    <h5 class="text-muted">Total Revenue</h5>
+                    <h3 class="fw-bold text-success">₹{{ total_revenue }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-stat shadow-sm p-3">
+                    <h5 class="text-muted">Checked-In Guests</h5>
+                    <h3 class="fw-bold text-primary">{{ checked_in }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="card shadow-sm p-3 mb-4">
+            <form method="GET" action="/" class="row g-3 align-items-center">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control" placeholder="Search by Guest Name or Pass ID..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="All" {% if status_filter == 'All' %}selected{% endif %}>All Status</option>
+                        <option value="Paid" {% if status_filter == 'Paid' %}selected{% endif %}>Paid Only</option>
+                        <option value="Unpaid" {% if status_filter == 'Unpaid' %}selected{% endif %}>Unpaid Only</option>
+                        <option value="Checked In" {% if status_filter == 'Checked In' %}selected{% endif %}>Checked In</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-dark w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Data Table Card -->
+        <div class="card shadow-sm mb-5">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Guest Pass Records</h5>
+                <span class="badge bg-danger">Showing {{ data|length }} records</span>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Pass ID</th>
+                            <th>Guest Name</th>
+                            <th>Contact</th>
+                            <th>Pass Type</th>
+                            <th>Date</th>
+                            <th>Price (INR)</th>
+                            <th>Payment</th>
+                            <th>Check-In</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if data %}
+                            {% for row in data %}
+                            <tr>
+                                <td>{{ row['Pass_ID'] }}</td>
+                                <td>{{ row['Guest_Name'] }}</td>
+                                <td>{{ row['Contact_Number'] }}</td>
+                                <td>{{ row['Pass_Type'] }}</td>
+                                <td>{{ row['Event_Date'] }}</td>
+                                <td>₹{{ row['Price_INR'] }}</td>
+                                <td>
+                                    <span class="badge {% if row['Payment_Status'] == 'Paid' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                                        {{ row['Payment_Status'] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if row['Check_In_Status'] == 'Checked In' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        {{ row['Check_In_Status'] }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">No records found matching your filter.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Pass Modal -->
+    <div class="modal fade" id="addPassModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="/add">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Add New Garba Pass</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Pass ID</label>
+                            <input type="text" name="pass_id" class="form-control" placeholder="e.g., GRB-2026-121" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Guest Name</label>
+                            <input type="text" name="guest_name" class="form-control" placeholder="Full Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contact Number</label>
+                            <input type="text" name="contact" class="form-control" placeholder="10-digit number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pass Type</label>
+                            <select name="pass_type" class="form-select">
+                                <option value="Regular Single">Regular Single</option>
+                                <option value="VIP Single">VIP Single</option>
+                                <option value="Couple Pass">Couple Pass</option>
+                                <option value="Group Pass (4)">Group Pass (4)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Event Date</label>
+                            <input type="text" name="event_date" class="form-control" placeholder="e.g., 15-Oct-26" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price (INR)</label>
+                            <input type="number" name="price" class="form-control" placeholder="500" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Status</label>
+                            <select name="payment_status" class="form-select">
+                                <option value="Paid">Paid</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Unpaid">Unpaid</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Save Pass</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
