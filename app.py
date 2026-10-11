@@ -1,26 +1,13 @@
-import os
+from flask import Flask, render_template, request
 import pandas as pd
+import os
 
-# Multi-location fallback logic for Vercel serverless environment
-base_dir = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__)
 
-# Possible locations where Vercel might place the file
-possible_paths = [
-    os.path.join(base_dir, 'Garba.csv'),
-    os.path.join(base_dir, 'garba.csv'),
-    os.path.join(os.getcwd(), 'Garba.csv'),
-    os.path.join(os.getcwd(), 'garba.csv'),
-    'Garba.csv',
-    'garba.csv'
-]
+# Aapka baaki code yahan rahega...
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CSV_PATH = os.path.join(BASE_DIR, 'Garba.csv')
 
-csv_path = None
-for path in possible_paths:
-    if os.path.exists(path):
-        csv_path = path
-        break
-
-if csv_path is None:
-    raise FileNotFoundError("Error: 'Garba.csv' file kisi bhi expected path par nahi mili!")
-
-df = pd.read_csv(csv_path)
+# Yeh line Vercel ke liye zaroori hai (agar local pe run karna ho toh app.run() rakhein)
+if __name__ == '__main__':
+    app.run(debug=True)
